@@ -58,10 +58,10 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-6 px-3 sm:py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-6 sm:space-y-8">
+    <div className="flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-6">
         <div>
-          <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="text-center text-2xl font-bold text-gray-900 dark:text-white">
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
@@ -71,7 +71,7 @@ const Register = () => {
             </Link>
           </p>
         </div>
-        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="name" className="sr-only">
