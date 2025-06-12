@@ -10,9 +10,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        border: 'hsl(var(--border))',
+        background: {
+          light: 'hsl(var(--background))',
+          dark: 'hsl(var(--background-dark))'
+        },
+        foreground: {
+          light: 'hsl(var(--foreground))',
+          dark: 'hsl(var(--foreground-dark))'
+        },
+        border: {
+          light: 'hsl(var(--border))',
+          dark: 'hsl(var(--border-dark))'
+        },
         primary: {
           light: '#4F46E5',
           dark: '#6366F1',
@@ -22,6 +31,20 @@ export default {
   },
   plugins: [],
   safelist: [
+    // Custom colors
+    'bg-background-light',
+    'bg-background-dark',
+    'text-foreground-light',
+    'text-foreground-dark',
+    'border-border-light',
+    'border-border-dark',
+    'dark:bg-background-dark',
+    'dark:bg-background-light',
+    'dark:text-foreground-dark',
+    'dark:text-foreground-light',
+    'dark:border-border-dark',
+    'dark:border-border-light',
+    
     // Layout
     'container',
     'mx-auto',
@@ -59,8 +82,6 @@ export default {
     'mr-4',
     
     // Colors
-    'bg-background',
-    'text-foreground',
     'bg-white',
     'bg-gray-50',
     'bg-gray-100',
