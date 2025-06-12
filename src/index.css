@@ -2,19 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+  * {
+    @apply border-border;
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-  }
-
   body {
-    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -106,19 +110,19 @@ button:focus-visible {
   @apply bg-gray-400 dark:bg-gray-500;
 }
 
-/* Ensure dark mode styles are properly applied */
-.dark {
-  color-scheme: dark;
-}
-
-/* Ensure proper color transitions */
+/* Smooth transitions */
 * {
   @apply transition-colors duration-200;
 }
 
-/* Ensure proper text rendering */
+/* Improve text rendering */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Ensure proper dark mode transitions */
+.dark * {
+  @apply transition-colors duration-200;
 }
