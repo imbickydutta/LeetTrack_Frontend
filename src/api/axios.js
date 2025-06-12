@@ -9,11 +9,21 @@ const api = axios.create({
   },
 });
 
+// List of public routes that don't need authentication
+const publicRoutes = [
+  '/auth/login',
+  '/auth/register',
+  '/users/leaderboard'
+];
+
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Only add token for non-public routes
+    if (!publicRoutes.some(route => config.url.includes(route))) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

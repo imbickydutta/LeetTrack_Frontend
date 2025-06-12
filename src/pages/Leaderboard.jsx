@@ -13,7 +13,7 @@ const Leaderboard = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await api.get('/admin/users');
+      const response = await api.get('/users/leaderboard');
       setUsers(response.data);
     } catch (err) {
       toast.error('Failed to fetch leaderboard');
