@@ -12,6 +12,7 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        border: 'hsl(var(--border))',
         primary: {
           light: '#4F46E5',
           dark: '#6366F1',
