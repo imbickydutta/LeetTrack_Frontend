@@ -23,9 +23,13 @@ const Login = () => {
 
     try {
       const response = await axios.post('/auth/login', formData);
-      login(response.data);
-      toast.success('Login successful!');
-      navigate('/');
+      const result = await login(response.data.data);
+      if (result.success) {
+        toast.success('Login successful!');
+        navigate('/');
+      } else {
+        toast.error(result.error || 'Login failed');
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
     } finally {
