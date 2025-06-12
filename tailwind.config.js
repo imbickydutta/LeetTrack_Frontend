@@ -4,7 +4,9 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/components/**/*.{js,jsx,ts,tsx}",
-    "./src/pages/**/*.{js,jsx,ts,tsx}"
+    "./src/pages/**/*.{js,jsx,ts,tsx}",
+    "./src/App.jsx",
+    "./src/main.jsx"
   ],
   darkMode: 'class',
   theme: {
