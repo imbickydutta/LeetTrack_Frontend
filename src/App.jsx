@@ -9,47 +9,47 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import Leaderboard from './pages/Leaderboard';
+import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-100">
-          <Navbar />
-          <div className="container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <PrivateRoute>
-                    <Profile />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <PrivateRoute roles={['admin']}>
-                    <Admin />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors">
+            <Navbar />
+            <div className="container mx-auto px-4 py-8">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <Admin />
+                    </AdminRoute>
+                  }
+                />
+              </Routes>
+            </div>
+            <Toaster position="top-right" />
           </div>
-        </div>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

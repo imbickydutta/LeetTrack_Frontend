@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import toast from 'react-hot-toast';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Admin = () => {
   const [users, setUsers] = useState([]);
@@ -25,9 +30,9 @@ const Admin = () => {
     try {
       const response = await api.get('/admin/users');
       setUsers(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch users');
+    } catch (error) {
+      toast.error('Failed to fetch users');
+    } finally {
       setLoading(false);
     }
   };
@@ -74,15 +79,39 @@ const Admin = () => {
     return 0;
   });
 
+  const difficultyData = userStats ? {
+    labels: ['Easy', 'Medium', 'Hard'],
+    datasets: [
+      {
+        data: [
+          userStats.difficultyStats.counts.Easy,
+          userStats.difficultyStats.counts.Medium,
+          userStats.difficultyStats.counts.Hard
+        ],
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.6)',
+          'rgba(234, 179, 8, 0.6)',
+          'rgba(239, 68, 68, 0.6)'
+        ],
+        borderColor: [
+          'rgb(34, 197, 94)',
+          'rgb(234, 179, 8)',
+          'rgb(239, 68, 68)'
+        ],
+        borderWidth: 1
+      }
+    ]
+  } : null;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 p-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-8"></div>
             <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
           </div>
@@ -93,7 +122,7 @@ const Admin = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 p-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             {error}
@@ -104,163 +133,119 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">User Management</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* User List Table */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Users</h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                        onClick={() => handleSort('name')}
-                      >
-                        <div className="flex items-center">
-                          Name
-                          {sortConfig.key === 'name' && (
-                            <span className="ml-1">
-                              {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                            </span>
-                          )}
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+            {sortedUsers.map((user) => (
+              <li key={user._id}>
+                <button
+                  onClick={() => handleUserClick(user)}
+                  className="w-full px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                          <span className="text-lg font-medium text-gray-600 dark:text-gray-300">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                        onClick={() => handleSort('totalSolved')}
-                      >
-                        <div className="flex items-center">
-                          Solved
-                          {sortConfig.key === 'totalSolved' && (
-                            <span className="ml-1">
-                              {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                            </span>
-                          )}
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {sortedUsers.map((user) => (
-                      <tr
-                        key={user._id}
-                        onClick={() => handleUserClick(user)}
-                        className={`cursor-pointer hover:bg-gray-50 ${
-                          selectedUser?._id === user._id ? 'bg-blue-50' : ''
-                        }`}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.totalSolved || 0}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Solved: {user.totalSolved || 0}
+                      </div>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        user.role === 'admin'
+                          ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* User Stats */}
-          <div className="lg:col-span-2">
-            {selectedUser ? (
-              <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedUser.name}'s Statistics
+        {/* User Details Modal */}
+        {selectedUser && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {selectedUser.name}'s Details
                   </h2>
+                  <button
+                    onClick={() => setSelectedUser(null)}
+                    className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                  >
+                    <span className="sr-only">Close</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+
                 {userStats ? (
-                  <div className="p-6 space-y-6">
-                    {/* Overall Progress Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <p className="text-sm text-blue-600 font-medium">Total Solved</p>
-                        <p className="text-2xl font-bold text-blue-900">{userStats.totalSolved}</p>
-                        <p className="text-sm text-blue-600">
-                          of {userStats.totalQuestions} questions
-                        </p>
-                      </div>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <p className="text-sm text-green-600 font-medium">Completion Rate</p>
-                        <p className="text-2xl font-bold text-green-900">
-                          {userStats.completionPercentage.toFixed(1)}%
-                        </p>
-                      </div>
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <p className="text-sm text-purple-600 font-medium">Topics Covered</p>
-                        <p className="text-2xl font-bold text-purple-900">
-                          {Object.keys(userStats.topicStats.counts).length}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Difficulty Progress */}
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Difficulty Progress</h3>
-                      <div className="space-y-4">
-                        {Object.entries(userStats.difficultyStats.counts).map(([difficulty, count]) => (
-                          <div key={difficulty} className="bg-gray-50 p-4 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="flex items-center">
-                                <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                                  difficulty === 'Easy'
-                                    ? 'bg-green-500'
-                                    : difficulty === 'Medium'
-                                    ? 'bg-yellow-500'
-                                    : 'bg-red-500'
-                                }`}></span>
-                                <span className="font-medium text-gray-900">{difficulty}</span>
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {count} solved ({userStats.difficultyStats.percentages[difficulty].toFixed(1)}%)
-                              </div>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                              <div
-                                className={`h-2.5 rounded-full ${
-                                  difficulty === 'Easy'
-                                    ? 'bg-green-500'
-                                    : difficulty === 'Medium'
-                                    ? 'bg-yellow-500'
-                                    : 'bg-red-500'
-                                }`}
-                                style={{ width: `${userStats.difficultyStats.percentages[difficulty]}%` }}
-                              ></div>
-                            </div>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Overall Progress</h3>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Total Questions:</span>
+                            <span className="text-gray-900 dark:text-white">{userStats.totalQuestions}</span>
                           </div>
-                        ))}
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Solved:</span>
+                            <span className="text-gray-900 dark:text-white">{userStats.totalSolved}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600 dark:text-gray-300">Completion:</span>
+                            <span className="text-gray-900 dark:text-white">
+                              {userStats.completionPercentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Difficulty Distribution</h3>
+                        {difficultyData && (
+                          <div className="h-48">
+                            <Pie data={difficultyData} options={{ maintainAspectRatio: false }} />
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {/* Topic Progress */}
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Topic Progress</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.entries(userStats.topicStats.counts).map(([topic, count]) => (
-                          <div key={topic} className="bg-gray-50 p-4 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-medium text-gray-900">{topic}</span>
-                              <span className="text-sm text-gray-500">
-                                {count} solved ({userStats.topicStats.percentages[topic].toFixed(1)}%)
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Topic Progress</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {Object.entries(userStats.topicStats.percentages).map(([topic, percentage]) => (
+                          <div key={topic} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{topic}</span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {percentage.toFixed(1)}%
                               </span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                               <div
-                                className="bg-blue-600 h-2.5 rounded-full"
-                                style={{ width: `${userStats.topicStats.percentages[topic]}%` }}
+                                className="bg-blue-600 h-2 rounded-full"
+                                style={{ width: `${percentage}%` }}
                               ></div>
                             </div>
                           </div>
@@ -269,21 +254,14 @@ const Admin = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Loading user statistics...</p>
+                  <div className="flex justify-center items-center h-48">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-center py-8">
-                  <p className="text-gray-500">Select a user to view their statistics</p>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

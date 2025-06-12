@@ -4,6 +4,7 @@ import api from '../api/axios';
 import CodeEditor from '../components/CodeEditor';
 import SolutionUrlModal from '../components/SolutionUrlModal';
 import ProgressStats from '../components/ProgressStats';
+import toast from 'react-hot-toast';
 
 // Cache management
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -49,6 +50,12 @@ export default function Dashboard() {
   const [showSolutionModal, setShowSolutionModal] = useState(false);
   const [selectedQuestionForSolution, setSelectedQuestionForSolution] = useState(null);
   const [filteredProgress, setFilteredProgress] = useState(null);
+  const [stats, setStats] = useState({
+    totalSolved: 0,
+    easySolved: 0,
+    mediumSolved: 0,
+    hardSolved: 0,
+  });
 
   // Save filter values to localStorage when they change
   useEffect(() => {
@@ -65,6 +72,19 @@ export default function Dashboard() {
   useEffect(() => {
     fetchFilteredProgress();
   }, [selectedDay, selectedTopic, activeTab]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/progress/user/overall');
+        setStats(response.data);
+      } catch (error) {
+        toast.error('Failed to fetch stats');
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const fetchQuestions = useCallback(async () => {
     try {
@@ -236,19 +256,20 @@ export default function Dashboard() {
     const percentage = total > 0 ? ((solved / total) * 100).toFixed(1) : 0;
 
     return (
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">{title}</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4
+       mb-6">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">{title}</h3>
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {solved} / {total} solved
           </span>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {percentage}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
           <div
-            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+            className="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300"
             style={{ width: `${percentage}%` }}
           ></div>
         </div>
@@ -265,40 +286,40 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="px-0 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               Welcome, {user?.name}!
             </h1>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleFilterChange('all')}
-                className={`px-4 py-2 rounded-md ${
+                className={`px-3 py-2 rounded-md text-sm ${
                   filter === 'all'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => handleFilterChange('solved')}
-                className={`px-4 py-2 rounded-md ${
+                className={`px-3 py-2 rounded-md text-sm ${
                   filter === 'solved'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }`}
               >
                 Solved
               </button>
               <button
                 onClick={() => handleFilterChange('unsolved')}
-                className={`px-4 py-2 rounded-md ${
+                className={`px-3 py-2 rounded-md text-sm ${
                   filter === 'unsolved'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }`}
               >
                 Unsolved
@@ -310,14 +331,14 @@ export default function Dashboard() {
             <ProgressStats />
           </div>
 
-          <div className="border-b border-gray-200 mb-6">
-            <nav className="-mb-px flex space-x-8">
+          <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
+            <nav className="-mb-px flex space-x-8 overflow-x-auto pb-4">
               <button
                 onClick={() => setActiveTab('day')}
                 className={`${
                   activeTab === 'day'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
                 Day-wise
@@ -326,8 +347,8 @@ export default function Dashboard() {
                 onClick={() => setActiveTab('topic')}
                 className={`${
                   activeTab === 'topic'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
                 Topic-wise
@@ -336,8 +357,8 @@ export default function Dashboard() {
                 onClick={() => setActiveTab('all')}
                 className={`${
                   activeTab === 'all'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
                 All Questions
@@ -401,11 +422,11 @@ export default function Dashboard() {
             {questions.map((question) => (
               <div
                 key={question._id}
-                className="bg-white overflow-hidden shadow rounded-lg"
+                className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg"
               >
                 <div className="px-4 py-5 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                       {question.title}
                     </h3>
                     <span
