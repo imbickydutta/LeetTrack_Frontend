@@ -9,8 +9,8 @@ import axios from 'axios';
 // Set API base URL based on environment
 const isDevelopment = import.meta.env.DEV;
 axios.defaults.baseURL = isDevelopment 
-  ? 'http://localhost:3030'
-  : 'https://leettrack-backend.onrender.com';
+  ? 'http://localhost:3030/api'
+  : 'https://leettrack-backend.onrender.com/api';
 
 // Ensure CSS is loaded
 document.addEventListener('DOMContentLoaded', () => {
