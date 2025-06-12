@@ -9,6 +9,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    leetcodeUsername: ''
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -33,15 +34,23 @@ const Register = () => {
       return;
     }
 
+    if (!formData.leetcodeUsername) {
+      toast.error('LeetCode username is required');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post('/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        leetcodeUsername: formData.leetcodeUsername
       });
       toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {
+      console.error('Registration error:', error);
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
@@ -91,6 +100,21 @@ const Register = () => {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="leetcodeUsername" className="sr-only">
+                LeetCode Username
+              </label>
+              <input
+                id="leetcodeUsername"
+                name="leetcodeUsername"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="LeetCode Username"
+                value={formData.leetcodeUsername}
                 onChange={handleChange}
               />
             </div>
