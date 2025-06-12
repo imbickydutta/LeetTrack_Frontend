@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3030/api',
+  baseURL: import.meta.env.PROD 
+    ? 'https://leettrack-backend.onrender.com/api'
+    : '/api',
   headers: {
     'Content-Type': 'application/json',
   },
