@@ -10,11 +10,16 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           charts: ['chart.js', 'react-chartjs-2']
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') return 'assets/[name].[hash][extname]';
+          return 'assets/[name].[hash][extname]';
         }
       }
     }
@@ -25,7 +30,8 @@ export default defineConfig({
         tailwindcss,
         autoprefixer
       ]
-    }
+    },
+    devSourcemap: true
   },
   server: {
     port: 3000,
