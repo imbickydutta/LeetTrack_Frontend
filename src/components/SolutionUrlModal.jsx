@@ -174,7 +174,7 @@ export default function SolutionUrlModal({ isOpen, onClose, onSubmit, questionTi
                   value={solutionUrl}
                   onChange={(e) => setSolutionUrl(e.target.value)}
                   placeholder="https://leetcode.com/problems/..."
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   required
                 />
               </div>

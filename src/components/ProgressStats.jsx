@@ -42,7 +42,7 @@ export default function ProgressStats() {
   if (!stats) return null;
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-colors duration-200"
@@ -83,30 +83,30 @@ export default function ProgressStats() {
         <div className="p-6">
           {/* Basic Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-blue-50 rounded-lg p-6 text-center">
-              <h4 className="text-lg font-medium text-blue-900">Total Solved</h4>
-              <p className="mt-2 text-3xl font-bold text-blue-600">
+            <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 text-center">
+              <h4 className="text-lg font-medium text-blue-900 dark:text-blue-100">Total Solved</h4>
+              <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
                 {stats.totalSolved}
               </p>
-              <p className="mt-1 text-sm text-blue-500">
+              <p className="mt-1 text-sm text-blue-500 dark:text-blue-300">
                 out of {stats.totalQuestions} questions
               </p>
             </div>
-            <div className="bg-green-50 rounded-lg p-6 text-center">
-              <h4 className="text-lg font-medium text-green-900">Completion Rate</h4>
-              <p className="mt-2 text-3xl font-bold text-green-600">
+            <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 text-center">
+              <h4 className="text-lg font-medium text-green-900 dark:text-green-100">Completion Rate</h4>
+              <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
                 {stats.completionPercentage.toFixed(1)}%
               </p>
-              <p className="mt-1 text-sm text-green-500">
+              <p className="mt-1 text-sm text-green-500 dark:text-green-300">
                 of all questions
               </p>
             </div>
-            <div className="bg-purple-50 rounded-lg p-6 text-center">
-              <h4 className="text-lg font-medium text-purple-900">Topics Covered</h4>
-              <p className="mt-2 text-3xl font-bold text-purple-600">
+            <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-6 text-center">
+              <h4 className="text-lg font-medium text-purple-900 dark:text-purple-100">Topics Covered</h4>
+              <p className="mt-2 text-3xl font-bold text-purple-600 dark:text-purple-400">
                 {Object.keys(stats.topicStats.counts).length}
               </p>
-              <p className="mt-1 text-sm text-purple-500">
+              <p className="mt-1 text-sm text-purple-500 dark:text-purple-300">
                 different topics
               </p>
             </div>
@@ -114,13 +114,13 @@ export default function ProgressStats() {
 
           {/* Difficulty Summary */}
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Difficulty Summary</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Difficulty Summary</h3>
             <div className="grid grid-cols-3 gap-4">
               {Object.entries(stats.difficultyStats.counts).map(([difficulty, count]) => (
-                <div key={difficulty} className="bg-white rounded-lg shadow p-4 text-center">
-                  <p className="text-sm font-medium text-gray-500">{difficulty}</p>
-                  <p className="mt-1 text-xl font-semibold text-gray-900">{count}</p>
-                  <p className="text-sm text-gray-500">
+                <div key={difficulty} className="bg-white dark:bg-gray-700 rounded-lg shadow p-4 text-center">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{difficulty}</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{count}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {stats.difficultyStats.percentages[difficulty].toFixed(1)}%
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export default function ProgressStats() {
           </div>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Visit your profile page for detailed statistics and progress tracking
             </p>
           </div>

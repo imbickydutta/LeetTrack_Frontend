@@ -375,7 +375,7 @@ export default function Dashboard() {
                 id="day-select"
                 value={selectedDay}
                 onChange={(e) => handleDayChange(Number(e.target.value))}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
               >
                 {availableDays && availableDays.length > 0 ? (
                   availableDays.map((day) => (
@@ -399,7 +399,7 @@ export default function Dashboard() {
                 id="topic-select"
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
               >
                 {availableTopics.map((topic) => (
                   <option key={topic} value={topic}>
