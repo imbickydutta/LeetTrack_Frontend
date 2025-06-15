@@ -10,16 +10,20 @@ const Login = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       const response = await axios.post('/auth/login', formData);
@@ -28,10 +32,13 @@ const Login = () => {
         toast.success('Login successful!');
         navigate('/');
       } else {
+        setError(result.error || 'Login failed');
         toast.error(result.error || 'Login failed');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      const errorMessage = error.response?.data?.message || 'Invalid email or password';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -52,6 +59,11 @@ const Login = () => {
           </p>
         </div>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+          {error && (
+            <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+              <div className="text-sm text-red-700 dark:text-red-200">{error}</div>
+            </div>
+          )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">

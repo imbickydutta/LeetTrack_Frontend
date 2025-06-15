@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/auth/me');
       setUser(response.data);
     } catch (error) {
+      console.error('Error fetching user:', error);
       localStorage.removeItem('token');
     } finally {
       setLoading(false);
@@ -29,22 +30,22 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (data) => {
     try {
-      if (data && data.token && data.user) {
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-        return { success: true };
-      } else {
+      if (!data || !data.token || !data.user) {
         console.error('Invalid response format:', data);
         return {
           success: false,
           error: 'Invalid response format from server'
         };
       }
+
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'Failed to login'
+        error: error.response?.data?.message || 'Invalid email or password'
       };
     }
   };

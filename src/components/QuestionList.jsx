@@ -21,13 +21,15 @@ export default function QuestionList({
           key={question._id}
           className="bg-white overflow-hidden shadow rounded-lg"
         >
-          <div className="px-4 py-5 sm:p-6">
+          <div className="px-4 py-5 sm:p-6 overflow-x-hidden">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
-                {question.title}
-              </h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-medium text-gray-900 truncate whitespace-nowrap max-w-full">
+                  {question.title}
+                </h3>
+              </div>
               <span
-                className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                   question.difficulty === 'Easy'
                     ? 'bg-green-100 text-green-800'
                     : question.difficulty === 'Medium'

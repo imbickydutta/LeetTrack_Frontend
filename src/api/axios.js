@@ -35,9 +35,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only handle 401 errors for non-public routes
+    if (error.response?.status === 401 && !publicRoutes.some(route => error.config.url.includes(route))) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Don't redirect automatically, let the components handle it
+      console.error('Authentication error:', error.response?.data?.message || 'Session expired');
     }
     return Promise.reject(error);
   }

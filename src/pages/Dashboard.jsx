@@ -5,6 +5,7 @@ import CodeEditor from '../components/CodeEditor';
 import SolutionUrlModal from '../components/SolutionUrlModal';
 import ProgressStats from '../components/ProgressStats';
 import toast from 'react-hot-toast';
+import QuestionRecommender from '../components/QuestionRecommender';
 
 // Cache management
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -331,6 +332,10 @@ export default function Dashboard() {
             <ProgressStats />
           </div>
 
+          <div className="mb-8">
+            <QuestionRecommender />
+          </div>
+
           <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
             <nav className="-mb-px flex space-x-8 overflow-x-auto pb-4">
               <button
@@ -426,11 +431,13 @@ export default function Dashboard() {
               >
                 <div className="px-4 py-5 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      {question.title}
-                    </h3>
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate whitespace-nowrap max-w-full">
+                        {question.title}
+                      </h3>
+                    </div>
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                         question.difficulty === 'Easy'
                           ? 'bg-green-100 text-green-800'
                           : question.difficulty === 'Medium'
