@@ -20,6 +20,7 @@ export default function Profile() {
     email: '',
     leetcodeUsername: '',
   });
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -90,9 +91,13 @@ export default function Profile() {
     setLoading(true);
 
     try {
-      const response = await api.put('/users/profile', formData);
+      const response = await api.put('/users/profile', {
+        name: formData.name,
+        leetcodeUsername: formData.leetcodeUsername,
+      });
       updateUser(response.data);
       toast.success('Profile updated successfully!');
+      setShowEditModal(false);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
@@ -208,13 +213,21 @@ export default function Profile() {
                 <h3 className="text-2xl font-bold text-white">{user?.name}</h3>
                 <p className="mt-1 text-blue-100">LeetCode Username: {user?.leetcodeUsername}</p>
               </div>
-              <button
-                onClick={handleSync}
-                disabled={true}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Sync with LeetCode (Coming Soon)
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleSync}
+                  disabled={true}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Sync with LeetCode (Coming Soon)
+                </button>
+              </div>
             </div>
           </div>
 
@@ -279,33 +292,30 @@ export default function Profile() {
 
               {/* Day-wise Progress */}
               <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Daily Progress</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(dayProgress)
-                    .sort(([dayA], [dayB]) => Number(dayA) - Number(dayB))
-                    .map(([day, progress]) => (
-                      <div key={day} className="bg-white dark:bg-gray-700 rounded-lg shadow p-4 border border-gray-100 dark:border-gray-600">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium text-gray-700 dark:text-gray-200">Day {day}</span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {progress.solved} / {progress.total} solved
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
-                          <div
-                            className="bg-green-600 dark:bg-green-500 h-2.5 rounded-full transition-all duration-300"
-                            style={{ width: `${(progress.solved / progress.total) * 100}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {((progress.solved / progress.total) * 100).toFixed(1)}% complete
-                        </p>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Day-wise Progress</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(dayProgress).sort(([dayA], [dayB]) => parseInt(dayA) - parseInt(dayB)).map(([day, progress]) => (
+                    <div key={day} className="bg-white dark:bg-gray-700 rounded-lg shadow p-4 border border-gray-100 dark:border-gray-600">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-200">Day {day}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {progress.solved} / {progress.total} solved
+                        </span>
                       </div>
-                    ))}
+                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                        <div
+                          className="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+                          style={{ width: `${(progress.solved / progress.total) * 100}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {((progress.solved / progress.total) * 100).toFixed(1)}% complete
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Difficulty Distribution */}
                 <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
@@ -344,16 +354,74 @@ export default function Profile() {
               </div>
             </div>
           )}
-
-          {success && (
-            <div className="px-4 py-5 sm:px-6">
-              <div className="rounded-md bg-green-50 dark:bg-green-900/30 p-4">
-                <div className="text-sm text-green-700 dark:text-green-200">{success}</div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">Edit Profile</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Email (Read-only)
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  readOnly
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 cursor-not-allowed"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="leetcodeUsername" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                  LeetCode Username
+                </label>
+                <input
+                  type="text"
+                  name="leetcodeUsername"
+                  id="leetcodeUsername"
+                  value={formData.leetcodeUsername}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Updating...' : 'Update Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
