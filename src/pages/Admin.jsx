@@ -16,6 +16,7 @@ const Admin = () => {
   const [error, setError] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'totalSolved', direction: 'desc' });
   const [activeTab, setActiveTab] = useState('users'); // 'users' or 'submissions'
+  const [recentSubs, setRecentSubs] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,8 +43,12 @@ const Admin = () => {
   const fetchUserStats = async (userId) => {
     try {
       setUserStats(null);
+      setRecentSubs([]);
       const response = await api.get(`/admin/users/${userId}/stats`);
       setUserStats(response.data);
+      // Fetch recent submissions for this user
+      const subsRes = await api.get(`/admin/submissions?userId=${userId}`);
+      setRecentSubs(subsRes.data);
     } catch (err) {
       setError('Failed to fetch user stats');
     }
@@ -205,13 +210,17 @@ const Admin = () => {
 
         {/* User Details Modal */}
         {selectedUser && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {selectedUser.name}'s Details
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {selectedUser.name}'s Details
+                    </h2>
+                    <div className="text-gray-500 text-sm">LeetCode: {selectedUser.leetcodeUsername}</div>
+                    <div className="text-gray-500 text-sm">User ID: {selectedUser._id}</div>
+                  </div>
                   <button
                     onClick={() => setSelectedUser(null)}
                     className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
@@ -222,10 +231,10 @@ const Admin = () => {
                     </svg>
                   </button>
                 </div>
-
                 {userStats ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Overall Progress */}
                       <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Overall Progress</h3>
                         <div className="space-y-2">
@@ -243,17 +252,129 @@ const Admin = () => {
                               {userStats.completionPercentage.toFixed(1)}%
                             </span>
                           </div>
+                          {userStats.rank && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-300">Rank:</span>
+                              <span className="text-gray-900 dark:text-white">{userStats.rank}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
-
+                      {/* Difficulty Distribution */}
                       <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Difficulty Distribution</h3>
-                        {difficultyData && (
-                          <div className="h-48">
-                            <Pie data={difficultyData} options={{ maintainAspectRatio: false }} />
+                        <div className="h-48 flex flex-col items-center justify-center">
+                          <Pie
+                            data={{
+                              labels: ['Easy', 'Medium', 'Hard'],
+                              datasets: [{
+                                data: [
+                                  userStats.difficultyStats.counts.Easy,
+                                  userStats.difficultyStats.counts.Medium,
+                                  userStats.difficultyStats.counts.Hard
+                                ],
+                                backgroundColor: [
+                                  '#22c55e', // Easy
+                                  '#eab308', // Medium
+                                  '#ef4444', // Hard
+                                ],
+                                borderColor: 'white',
+                                borderWidth: 1,
+                              }]
+                            }}
+                            options={{
+                              plugins: { legend: { display: false } },
+                              maintainAspectRatio: false
+                            }}
+                          />
+                          <div className="flex justify-center gap-4 mt-2">
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#22c55e] inline-block"></span>Easy</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#eab308] inline-block"></span>Medium</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#ef4444] inline-block"></span>Hard</span>
                           </div>
-                        )}
+                        </div>
                       </div>
+                    </div>
+                    {/* Topic-wise Progress */}
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Topic-wise Progress</h3>
+                      <div className="space-y-3">
+                        {userStats.topicStats && Object.entries(userStats.topicStats.totals).map(([topic, total]) => {
+                          const solved = userStats.topicStats.counts[topic] || 0;
+                          const percent = total ? (solved / total) * 100 : 0;
+                          return (
+                            <div key={topic} className="flex items-center gap-4">
+                              <span className="w-32 truncate text-gray-700 dark:text-gray-200">{topic}</span>
+                              <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mx-2">
+                                <div
+                                  className="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+                                  style={{ width: `${percent}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 w-28 text-right">
+                                {solved} / {total} ({percent.toFixed(1)}%)
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    {/* Recent Submissions Table */}
+                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Submissions</h3>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-xs">
+                          <thead>
+                            <tr>
+                              <th className="text-left">Question</th>
+                              <th className="text-left">Status</th>
+                              <th className="text-left">Date</th>
+                              <th className="text-left">Solution</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {recentSubs.length === 0 && (
+                              <tr>
+                                <td colSpan={4} className="text-gray-400 text-center py-2">No submissions.</td>
+                              </tr>
+                            )}
+                            {recentSubs.map(sub => (
+                              <tr key={sub._id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <td>{sub.questionTitle}</td>
+                                <td>
+                                  <span className={
+                                    sub.reviewStatus === 'correct'
+                                      ? 'text-green-600'
+                                      : sub.reviewStatus === 'incorrect'
+                                      ? 'text-red-600'
+                                      : sub.reviewStatus === 'pending'
+                                      ? 'text-yellow-600 font-semibold'
+                                      : 'text-gray-600'
+                                  }>
+                                    {sub.reviewStatus.charAt(0).toUpperCase() + sub.reviewStatus.slice(1)}
+                                  </span>
+                                </td>
+                                <td>{new Date(sub.submittedAt).toLocaleString()}</td>
+                                <td>
+                                  {sub.solutionUrl
+                                    ? <a href={sub.solutionUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">View</a>
+                                    : <span className="text-gray-400">N/A</span>
+                                  }
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    {/* Actions */}
+                    <div className="mt-4 flex gap-2">
+                      <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={() => {}}>
+                        All Submissions
+                      </button>
+                      <button className="px-3 py-1 bg-gray-300 rounded" onClick={() => {navigator.clipboard.writeText(selectedUser._id)}}>
+                        Copy User ID
+                      </button>
                     </div>
                   </div>
                 ) : (
