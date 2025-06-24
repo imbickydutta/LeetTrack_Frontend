@@ -6,6 +6,7 @@ import SolutionUrlModal from '../components/SolutionUrlModal';
 import ProgressStats from '../components/ProgressStats';
 import toast from 'react-hot-toast';
 import QuestionRecommender from '../components/QuestionRecommender';
+import WinnersPopup from '../components/WinnersPopup';
 
 // Cache management
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [showSolutionModal, setShowSolutionModal] = useState(false);
   const [selectedQuestionForSolution, setSelectedQuestionForSolution] = useState(null);
   const [filteredProgress, setFilteredProgress] = useState(null);
+  const [showWinners, setShowWinners] = useState(true);
   const [stats, setStats] = useState({
     totalSolved: 0,
     easySolved: 0,
@@ -288,6 +290,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 overflow-x-hidden">
+      {showWinners && <WinnersPopup onClose={() => setShowWinners(false)} />}
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="px-0 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
@@ -498,6 +501,7 @@ export default function Dashboard() {
       {selectedQuestion && (
         <CodeEditor
           questionId={selectedQuestion._id}
+          questionTitle={selectedQuestion.title}
           onClose={handleCloseEditor}
         />
       )}
